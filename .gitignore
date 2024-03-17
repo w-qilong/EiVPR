@@ -1,0 +1,20 @@
+# dir 不需要提交的目录
+/logs
+/pretrained_models
+/attention_visual_result
+/R2Former
+/point_correspondences
+/profiler
+/Visualizer
+/LoFTR
+/CrossViT-pytorch
+/others
+/.idea/
+/Pytorch_Lighting_Template
+/results
+/LibMTL
+# file 不需要提交的文件
+README.md
+
+# 不需要提交的任意包含后缀名为npy的文件
+*.npy
