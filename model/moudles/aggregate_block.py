@@ -2,11 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-class FeatureMixerLayer(nn.Module):
+class AggregateBlock(nn.Module):
     def __init__(self, in_dim, mlp_ratio=1):
         super().__init__()
         self.mix = nn.Sequential(
-            # nn.LayerNorm(in_dim),
             nn.Linear(in_dim, int(in_dim * mlp_ratio)),
             nn.ReLU(),
             nn.Linear(int(in_dim * mlp_ratio), in_dim),
@@ -22,7 +21,7 @@ class FeatureMixerLayer(nn.Module):
         return x + self.mix(x)
 
 
-class MixAggregator(nn.Module):
+class Aggregator(nn.Module):
     def __init__(self,
                  in_channels=768,
                  token_num=256,
@@ -42,7 +41,7 @@ class MixAggregator(nn.Module):
         self.mlp_ratio = mlp_ratio  # ratio of the mid projection layer in the mixer block
 
         self.mix = nn.Sequential(*[
-            FeatureMixerLayer(in_dim=token_num, mlp_ratio=mlp_ratio)
+            AggregateBlock(in_dim=token_num, mlp_ratio=mlp_ratio)
             for _ in range(self.mix_depth)
         ])
         self.channel_proj = nn.Linear(in_channels, out_channels)
@@ -66,7 +65,7 @@ def print_nb_params(m):
 if __name__ == '__main__':
 
     a=torch.randn((1,529,1024))
-    mixer=MixAggregator(
+    agg=Aggregator(
         in_channels=1024,
         token_num=529,
         out_channels=1024,
@@ -74,6 +73,6 @@ if __name__ == '__main__':
         mlp_ratio=2,
         out_rows=4,
     )
-    print_nb_params(mixer)
-    out=mixer(a)
+    print_nb_params(agg)
+    out=agg(a)
     print(out.shape)

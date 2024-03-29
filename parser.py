@@ -46,7 +46,6 @@ parser.add_argument(
         'tokyo247_dataset',
         'nordland_dataset',
         'pittsburg30k_dataset',
-
         # 'pittsburg250k_dataset',
         # 'essex3in1_dataset',
     ], type=list)
@@ -149,31 +148,3 @@ parser.add_argument('--swa_lrs', default=1e-5, type=float)
 parser.add_argument('--swa_epoch_start', default=0.75, type=float)
 parser.add_argument('--annealing_epochs', default=10, type=int)
 parser.add_argument('--annealing_strategy', default='cos', type=str)
-
-# # args for cross vit matcher
-# parser.add_argument('--mix_depth', default=4, type=int)
-# parser.add_argument('--mlp_ratio', default=2, type=int)
-# parser.add_argument('--out_rows', default=1, type=int)
-#
-# parser.add_argument('--sm_dim', default=128, type=int)
-# parser.add_argument('--lg_dim', default=128, type=int)
-#
-# parser.add_argument('--sm_enc_depth', default=1, type=int)
-# parser.add_argument('--sm_enc_heads', default=8, type=int)
-# parser.add_argument('--sm_enc_mlp_dim', default=768, type=int)
-# parser.add_argument('--sm_enc_dim_head', default=64, type=int)
-#
-# parser.add_argument('--lg_enc_depth', default=1, type=int)
-# parser.add_argument('--lg_enc_heads', default=8, type=int)
-# parser.add_argument('--lg_enc_mlp_dim', default=768, type=int)
-# parser.add_argument('--lg_enc_dim_head', default=64, type=int)
-#
-# parser.add_argument('--cross_attn_depth', default=1, type=int)
-# parser.add_argument('--cross_attn_heads', default=8, type=int)
-# parser.add_argument('--cross_attn_dim_head', default=64, type=int)
-#
-# parser.add_argument('--dropout', default=0.1, type=float)
-# parser.add_argument('--emb_dropout', default=0.1, type=float)
-#
-# parser.add_argument('--num_classes', default=2, type=int)
-# parser.add_argument('--depth', default=4, type=int)

@@ -5,8 +5,8 @@ from einops import repeat
 from timm.models.layers import trunc_normal_
 from torch import nn
 
-from model.moudles.aggregate_block import MixAggregator
-from model.moudles.token_reducer import TokenLearner
+from model.moudles.aggregate_block import Aggregator
+from model.moudles.token_reducer import TokenReducer
 
 warnings.filterwarnings('ignore')
 
@@ -71,7 +71,7 @@ class Dinov2Backbone(nn.Module):
         self.num_learned_tokens = num_learned_tokens
         self.channels_reduced = channels_reduced
 
-        self.mixer = MixAggregator(
+        self.mixer = Aggregator(
             in_channels=mix_in_channels,
             token_num=mix_token_num,
             out_channels=mix_out_channels,
@@ -82,7 +82,7 @@ class Dinov2Backbone(nn.Module):
 
         if self.rerank:
             # init token learner
-            self.token_learner = TokenLearner(
+            self.token_reducer = TokenReducer(
                 in_channels=self.num_channels,
                 num_tokens=self.num_learned_tokens,
                 use_sum_pooling=False
@@ -125,7 +125,7 @@ class Dinov2Backbone(nn.Module):
 
         if self.rerank:
             # use token learner generate tokens
-            local_feats = self.token_learner(local_feats)
+            local_feats = self.token_reducer(local_feats)
 
             if self.channels_reduced:
                 local_feats = self.local_reduce(local_feats)
@@ -318,7 +318,10 @@ if __name__ == '__main__':
         # print('use_time:', use_time)
 
 
-        # input = torch.randn((1, 3, 322, 322)).cuda()
+        input = torch.randn((1, 3, 322, 322)).cuda()
+        g,l = model.dino_forward(input)
+        print(g.size())
+
         input1 = torch.randn((1, 8, 1024)).cuda()
         input2 = torch.randn((1, 8, 1024)).cuda()
         o=model(input1, input2)
