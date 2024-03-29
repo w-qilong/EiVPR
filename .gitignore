@@ -6,7 +6,6 @@
 /__pycache__
 /.idea
 # file 不需要提交的文件
-README.md
 test.py
 environment.yaml
 swa_top_k_models.py
