@@ -1,13 +1,12 @@
 import warnings
 
 import torch
-import torch.nn.functional as F
 from einops import repeat
 from timm.models.layers import trunc_normal_
 from torch import nn
 
-from model.moudles.mlp_mixer import MixAggregator
-from model.moudles.token_learner import TokenLearner
+from model.moudles.aggregate_block import MixAggregator
+from model.moudles.token_reducer import TokenLearner
 
 warnings.filterwarnings('ignore')
 
@@ -111,10 +110,12 @@ class Dinov2Backbone(nn.Module):
             for idx, blk in enumerate(self.model.blocks[:-self.num_trainable_blocks]):
                 x = blk(x)
         x = x.detach()
+
         # Last blocks are trained
         for blk in self.model.blocks[-self.num_trainable_blocks:]:
             x = blk(x)
 
+        # norm
         if self.norm_layer:
             x = self.model.norm(x)
 
@@ -123,20 +124,14 @@ class Dinov2Backbone(nn.Module):
         local_feats = local_feature.clone().detach()  # local features
 
         if self.rerank:
-            # global_feats = mix_feats * 1
-            # # use correlation score to get top k local tokens
-            # reduce_global_feats = self.reduce_dim_layer(global_feats).unsqueeze(
-            #     1)  # calculate correlation between mix feature and local features
-            # correlation = torch.matmul(reduce_global_feats, local_feats.permute((0, 2, 1)))
-            # order_f = torch.argsort(correlation, dim=2, descending=True).squeeze()
-            # selected_index = order_f[:, :64].unsqueeze(2).repeat(1, 1, 768)
-            # local_feats = torch.gather(input=local_feats, index=selected_index, dim=1)
-
             # use token learner generate tokens
             local_feats = self.token_learner(local_feats)
+
             if self.channels_reduced:
                 local_feats = self.local_reduce(local_feats)
+
             local_feats = nn.functional.normalize(local_feats, p=2, dim=-1)
+
             return mix_feature, local_feats
         else:
             return mix_feature, local_feats
@@ -280,16 +275,6 @@ class Dinov2Finetune(nn.Module):
         logits = self.head(x[:, 0])
         return logits
 
-        # B, N, C = x_feats.shape
-        #
-        # x = torch.cat([x_feats, y_feats], dim=1)
-        # # input x in transformer encoder
-        # x = self.encoder(x)
-        # x = torch.mean(x, dim=1)
-        # # input CLS feature  to  class layers
-        # o = self.head(x)
-        # return o
-
 
 if __name__ == '__main__':
     import time
@@ -309,7 +294,7 @@ if __name__ == '__main__':
             mix_out_rows=4,
 
             # args for matcher
-            rerank=False,
+            rerank=True,
             num_learned_tokens=8,
             channels_reduced=0,
             trans_heads=8,
@@ -321,34 +306,22 @@ if __name__ == '__main__':
             num_classifier=2,
         ).cuda()
 
-        input1 = torch.randn((1, 3, 322, 322))
-        time_start = time.time()
-        num = 1000
-        for i in range(1000):
-            out = model.dino_forward(input1)
-        time_end = time.time()
-        use_time = (time_end - time_start) / num
-        print('use_time:', use_time)
+        # calculate mean inference time
 
-    # from thop import profile
-    # from thop import clever_format
-    #
-    # input = torch.randn((1, 3, 322, 322)).cuda()
-    # input1 = torch.randn((1, 8, 1024)).cuda()
-    # input2 = torch.randn((1, 8, 1024)).cuda()
-    #
-    # macs, params = profile(model, inputs=(input1, input2), verbose=False)
-    # macs, params = clever_format([macs, params], "%.3f")  # clever_format
-    # print("Macs=", macs)
-    # print("Params=", params)
+        # input1 = torch.randn((1, 3, 322, 322))
+        # time_start = time.time()
+        # num = 1000
+        # for i in range(1000):
+        #     out = model.dino_forward(input1)
+        # time_end = time.time()
+        # use_time = (time_end - time_start) / num
+        # print('use_time:', use_time)
 
-    # macs, params = profile(model, inputs=(input1,input2), verbose=False)
-    # macs, params = clever_format([macs, params], "%.3f")  # clever_format
-    # print("Macs=", macs)
-    # print("Params=", params)
 
-    # a = torch.randn((2, 64, 128))
-    # b = torch.randn((2, 64, 128))
-    #
-    # c = matcher.forward(a, b)
-    # print(c)
+        # input = torch.randn((1, 3, 322, 322)).cuda()
+        input1 = torch.randn((1, 8, 1024)).cuda()
+        input2 = torch.randn((1, 8, 1024)).cuda()
+        o=model(input1, input2)
+        print(o.size())
+
+
