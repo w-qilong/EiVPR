@@ -8,16 +8,15 @@
 
 import warnings
 
-import torch
 import pytorch_lightning as pl
+import torch
 from pytorch_lightning import Trainer
-from pytorch_lightning.profilers import AdvancedProfiler
 
 from data import DInterface
 from model import AggMInterface
+from parser import parser
 # import call callbacks functions and parser for args
 from utils.call_backs import load_callbacks
-from parser import parser
 
 warnings.filterwarnings("ignore")
 
@@ -27,9 +26,6 @@ torch.set_float32_matmul_precision('high')
 def main(args):
     # set random seed
     pl.seed_everything(args.seed)
-
-    # add profiler
-    # profiler = AdvancedProfiler(dirpath="./profiler", filename="perf_logs")
 
     # init pytorch_lighting data and model module
     # vars(args) transformer property and value of a python object into a dict
@@ -57,16 +53,16 @@ def main(args):
         # profiler=profiler,
         # fast_dev_run=True,  # uncomment or dev mode (only runs a one iteration train and validation, no checkpointing).
         # limit_train_batches=1,
-        # limit_val_batches=1
+        # limit_val_batches=50
     )
 
     # train and eval model using train_dataloader and eval_dataloader
-    trainer.fit(model, data_module)
+    # trainer.fit(model, data_module)
 
     # validate model using defined test_dataloader, you have to set the ckpt_path
-    # trainer.validate(model=model,
-    #                  datamodule=data_module,
-    #                  ckpt_path='/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_16/checkpoints/dinov2_finetune_epoch(38)_step(76206)_R1[0.9135]_R5[0.9581]_R10[0.9649].ckpt')
+    trainer.validate(model=model,
+                     datamodule=data_module,
+                     ckpt_path='/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_26/checkpoints/dinov2_finetune_epoch(08)_step(17586)_R1[0.8649]_R5[0.9365]_R10[0.9500].ckpt')
 
 if __name__ == '__main__':
     args = parser.parse_args()

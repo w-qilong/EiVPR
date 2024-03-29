@@ -36,36 +36,30 @@ if args.model_name == 'dinov2_finetune':
     model.eval()
     print(model)
 
-
-    image_path = '/media/cartolab/DataDisk/wuqilong_file/VPR_datasets/MSLS_Dataset/MSLS/train_val/cph/query/images/0vlzaZELuI_YJyLtcIQgRw.jpg'
+    image_path = '/media/cartolab/DataDisk/wuqilong_file/VPR_datasets/MSLS_Dataset/MSLS/test/athens/query/images/9tfP0v69U0Gmyp_vZ0AzSg.jpg'
     # load image
     image_query = Image.open(image_path).resize((322, 322))
-    a = ImageDraw.ImageDraw(image_query)
-    width_num = 23
 
-    for i in range(width_num):
-        for j in range(width_num):
-            a.rectangle(((14 * i, 14 * j), (14 * (i + 1), 14 * (j + 1))), fill=None, outline='green', width=1)
+    # 为图像添加网格线
+    # a = ImageDraw.ImageDraw(image_query)
+    # width_num = 23
+    # for i in range(width_num):
+    #     for j in range(width_num):
+    #         a.rectangle(((14 * i, 14 * j), (14 * (i + 1), 14 * (j + 1))), fill=None, outline='green', width=1)
 
-    fig, ax = plt.subplots(1, 2, figsize=(6, 4))
-
+    # 可视化结果
+    fig, ax = plt.subplots(1, 9, figsize=(36, 4))
     ax[0].set_xticks([])
     ax[0].set_yticks([])
     ax[0].imshow(image_query)
-
     image_query_ = valid_transform(image_query)
     image_query_ = image_query_.unsqueeze(0)
-
     # define hook function
     features_in_hook = []
     features_out_hook = []
-
-
     def hook(module, fea_in, fea_out):
         features_in_hook.append(fea_in)
         features_out_hook.append(fea_out)
-
-
     layer_name = f'token_learner.attention_maps'
     for (name, module) in model.named_modules():
         print(name)
@@ -77,54 +71,19 @@ if args.model_name == 'dinov2_finetune':
     print(maps[0])
 
     maps = maps.cpu().detach().numpy()
-    first_row_maps = maps[0]
-    ax[1].set_xticks([])
-    ax[1].set_yticks([])
-    ax[1].imshow(maps[0])
+
+    for i in range(len(maps)):
+        ax[i + 1].set_xticks([])
+        ax[i + 1].set_yticks([])
+        ax[i + 1].imshow(maps[i])
+
+    # first_row_maps = maps[0]
+    # ax[1].set_xticks([])
+    # ax[1].set_yticks([])
+    # ax[1].imshow(maps[0])
 
     fig.tight_layout()
-    output_filepath = os.path.join('../attention_visual_result/show_learner_attentions/', os.path.basename(image_path),
-                                  )
+    output_filepath = os.path.join('../attention_visual_result/show_learner_attentions_v1/', os.path.basename(image_path),
+                                   )
     plt.savefig(output_filepath, dpi=600, bbox_inches='tight')
     plt.show()
-
-    # fig, ax = plt.subplots(1, 2, figsize=(9, 9))
-    # ax[0, 0].imshow(image_query)
-    # # plt.show()
-    #
-    # image_query_ = valid_transform(image_query)
-    # image_query_ = image_query_.unsqueeze(0)
-    #
-    # # define hook function
-    # features_in_hook = []
-    # features_out_hook = []
-    #
-    # def hook(module, fea_in, fea_out):
-    #     features_in_hook.append(fea_in)
-    #     features_out_hook.append(fea_out)
-    #
-    # layer_name = f'token_learner.attention_maps'
-    # for (name, module) in model.named_modules():
-    #     print(name)
-    #     if name == layer_name:
-    #         module.register_forward_hook(hook=hook)
-    #
-    # model(image_query_.cuda())
-    # maps=features_out_hook[0][0]
-    # print(maps[0])
-    #
-    # # maps =torch.rot90(maps,k=3,dims=(1,2))
-    # # print(maps[0])
-    # maps=maps.cpu().detach().numpy()
-    # first_row_maps = maps[:2]
-    # other_row_maps = maps[2:]
-    #
-    # ax[0, 1].imshow(maps[0])
-    # ax[0, 2].imshow(maps[1])
-    #
-    # for i in range(len(other_row_maps)):
-    #     row = i // 3
-    #     column = i % 3
-    #     ax[row+1, column].imshow(other_row_maps[i])
-    #
-    # plt.show()

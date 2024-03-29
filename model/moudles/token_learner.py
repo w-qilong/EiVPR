@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 
 class TokenLearner(nn.Module):
@@ -142,16 +143,19 @@ class TokenLearnerModuleV11(nn.Module):
 
         return outputs
 
+def print_nb_params(m):
+    model_parameters = filter(lambda p: p.requires_grad, m.parameters())
+    params = sum([np.prod(p.size()) for p in model_parameters])
+    print(f'Trainable parameters: {params/1e6:.3}M')
 
 if __name__ == '__main__':
-    tklr = TokenLearnerModuleV11(
-        in_channels=768,
-        num_tokens=8,
-        num_groups=2,
-        dropout_rate=0.1
+    tklr = TokenLearner(
+        in_channels=1024,
+        num_tokens=32,
+        use_sum_pooling=False
     )
-
-    x = torch.ones(2, 256, 768)  # [bs, t, c]
+    print_nb_params(tklr)
+    x = torch.ones(1, 529, 1024)  # [bs, t, c]
     b, t, c = x.shape
     y1 = tklr(x)
     print(y1.shape)  # [256, 8, 128]

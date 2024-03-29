@@ -11,7 +11,7 @@ parser.add_argument('--norm_layer', default=True, type=bool)
 parser.add_argument('--mix_in_channels', default=1024, type=int)
 parser.add_argument('--mix_token_num', default=529, type=int)
 parser.add_argument('--mix_out_channels', default=1024, type=int)
-parser.add_argument('--mix_mix_depth', default=2, type=int)
+parser.add_argument('--mix_mix_depth', default=5, type=int)
 parser.add_argument('--mix_mlp_ratio', default=2, type=int)
 parser.add_argument('--mix_out_rows', default=4, type=int)
 
@@ -42,10 +42,10 @@ parser.add_argument(
     '--eval_datasets',
     default=[
         'mapillary_dataset',
-        # 'spedtest_dataset',
-        # 'tokyo247_dataset',
-        # 'nordland_dataset',
-        # 'pittsburg30k_dataset',
+        'spedtest_dataset',
+        'tokyo247_dataset',
+        'nordland_dataset',
+        'pittsburg30k_dataset',
 
         # 'pittsburg250k_dataset',
         # 'essex3in1_dataset',
@@ -129,7 +129,7 @@ parser.add_argument('--l_softmax_linear_margin', default=0, type=int)
 
 # whether to use early stopping
 parser.add_argument('--use_early_stopping', default=True, type=bool)
-parser.add_argument('--patience', default=8, type=int)
+parser.add_argument('--patience', default=3, type=int)
 
 # if use gradient accumulate, set arg for in
 parser.add_argument('--gradient_accumulate', default=False, type=bool)

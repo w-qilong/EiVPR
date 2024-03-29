@@ -35,11 +35,13 @@ else:
 dbImages = os.listdir(ref_folder)
 dbImages = sorted(dbImages, key=lambda x: int(x.split('.')[0]))
 dbImages = np.array([os.path.join('ref', i) for i in dbImages])
+print(len(dbImages))
 
 
 qImages = os.listdir(query_folder)
 qImages = sorted(qImages, key=lambda x: int(x.split('.')[0]))
 qImages = np.array([os.path.join('query', i) for i in qImages])
+print(len(qImages))
 
 
 qIdx = np.arange(0, len(qImages))

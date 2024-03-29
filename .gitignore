@@ -13,8 +13,12 @@
 /Pytorch_Lighting_Template
 /results
 /LibMTL
+/datasets
 # file 不需要提交的文件
 README.md
+test.py
+environment.yaml
+swa_top_k_models.py
 
 # 不需要提交的任意包含后缀名为npy的文件
 *.npy

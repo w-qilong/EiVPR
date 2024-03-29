@@ -10,8 +10,8 @@ import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
-import model.functional as LF
-import model.normalization as normalization
+import functional as LF
+import normalization as normalization
 
 class MAC(nn.Module):
     def __init__(self):
@@ -258,3 +258,9 @@ class CRN(NetVLAD):
         vlad = F.normalize(vlad, p=2, dim=1)  # L2 normalize
         return vlad
 
+if __name__ == '__main__':
+    gem=GeM()
+    a=torch.randn((128,529,768))
+    a=a.reshape((128,768,23,23))
+    o=gem(a)
+    print(o.size())

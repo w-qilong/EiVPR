@@ -1,13 +1,13 @@
 import warnings
 
 import torch
+import torch.nn.functional as F
 from einops import repeat
 from timm.models.layers import trunc_normal_
 from torch import nn
 
 from model.moudles.mlp_mixer import MixAggregator
 from model.moudles.token_learner import TokenLearner
-from model.moudles.cross_vit import CrossViT
 
 warnings.filterwarnings('ignore')
 
@@ -17,7 +17,6 @@ DINOV2_ARCHS = {
     'dinov2_vitl14': 1024,
     'dinov2_vitg14': 1536,
 }
-
 
 class Dinov2Backbone(nn.Module):
     """
@@ -111,8 +110,6 @@ class Dinov2Backbone(nn.Module):
         with torch.no_grad():
             for idx, blk in enumerate(self.model.blocks[:-self.num_trainable_blocks]):
                 x = blk(x)
-                if idx == 4:
-                    local_feats_ = x[:, 1:]
         x = x.detach()
         # Last blocks are trained
         for blk in self.model.blocks[-self.num_trainable_blocks:]:
@@ -123,7 +120,7 @@ class Dinov2Backbone(nn.Module):
 
         local_feature = x[:, 1:]
         mix_feature = self.mixer(local_feature)
-        # local_feats = local_feature.clone().detach()  # local features
+        local_feats = local_feature.clone().detach()  # local features
 
         if self.rerank:
             # global_feats = mix_feats * 1
@@ -136,15 +133,13 @@ class Dinov2Backbone(nn.Module):
             # local_feats = torch.gather(input=local_feats, index=selected_index, dim=1)
 
             # use token learner generate tokens
-            local_feats = self.token_learner(local_feats_)
-
+            local_feats = self.token_learner(local_feats)
             if self.channels_reduced:
                 local_feats = self.local_reduce(local_feats)
-
             local_feats = nn.functional.normalize(local_feats, p=2, dim=-1)
             return mix_feature, local_feats
         else:
-            return mix_feature, local_feats_
+            return mix_feature, local_feats
 
 
 class Dinov2Finetune(nn.Module):

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 class FeatureMixerLayer(nn.Module):
     def __init__(self, in_dim, mlp_ratio=1):
         super().__init__()
@@ -57,8 +58,22 @@ class MixAggregator(nn.Module):
         x = F.normalize(x.flatten(1), p=2, dim=-1)  # [B,out_channels * out_rows]
         return x
 
+def print_nb_params(m):
+    model_parameters = filter(lambda p: p.requires_grad, m.parameters())
+    params = sum([np.prod(p.size()) for p in model_parameters])
+    print(f'Trainable parameters: {params/1e6:.3}M')
+
 if __name__ == '__main__':
-    a=torch.randn((2,256,768))
-    mixer=MixAggregator()
+
+    a=torch.randn((1,529,1024))
+    mixer=MixAggregator(
+        in_channels=1024,
+        token_num=529,
+        out_channels=1024,
+        mix_depth=6,
+        mlp_ratio=2,
+        out_rows=4,
+    )
+    print_nb_params(mixer)
     out=mixer(a)
     print(out.shape)
