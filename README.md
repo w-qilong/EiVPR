@@ -17,7 +17,7 @@ The data and codes that support the findings of this study are available here.
 3. faiss-gpu==1.7.2
 
 ### How to run this project
-All projects and preprocess data are including this project.
+All code and preprocess data are including this project.
 
 Everything will be saved easily by Tensorboard.
 
