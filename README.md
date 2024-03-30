@@ -1,19 +1,14 @@
 <h3 align="left"> EiVPR: Efficient integration of global retrieval and reranking for visual place recognition via Transformer </h3>
 The data and codes that support the findings of this study are available here.
 
-## 目录
+## Catalogs
 
 - Motivation of this work
-- Overview of method
 - Environments
 - How to run this project
 
-
 ### Motivation: This figure shows our motivation for this study.
 ![motivation.png](images%2Fmotivation.png)
-
-### Overview: This figure shows our motivation for this study.
-![overview.png](images%2Foverview.png)
 
 ### Environments
 1. pytorch==2.1.0
@@ -26,7 +21,9 @@ All projects and preprocess data are including this project.
 
 Everything will be saved easily by Tensorboard.
 
-You just need to download train and benchmark datasets, and then run main.py.
+You just need to download train and benchmark datasets, put them to correct path. 
+
+Then run main.py.
 
 ```sh
 python main.py
