@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser()
 
-# todo: Model Hyperparameters
+# todo: Model Hyperparametersb
 parser.add_argument('--model_name', default='dinov2_finetune', type=str)
 parser.add_argument('--pretrained_model_name', default='dinov2_vitl14', type=str)
 parser.add_argument('--num_trainable_blocks', default=2, type=int)
@@ -11,7 +11,7 @@ parser.add_argument('--norm_layer', default=True, type=bool)
 parser.add_argument('--mix_in_channels', default=1024, type=int)
 parser.add_argument('--mix_token_num', default=529, type=int)
 parser.add_argument('--mix_out_channels', default=1024, type=int)
-parser.add_argument('--mix_mix_depth', default=5, type=int)
+parser.add_argument('--mix_mix_depth', default=4, type=int)
 parser.add_argument('--mix_mlp_ratio', default=2, type=int)
 parser.add_argument('--mix_out_rows', default=4, type=int)
 
@@ -42,10 +42,10 @@ parser.add_argument(
     '--eval_datasets',
     default=[
         'mapillary_dataset',
-        'spedtest_dataset',
-        'tokyo247_dataset',
-        'nordland_dataset',
-        'pittsburg30k_dataset',
+        # 'spedtest_dataset',
+        # 'tokyo247_dataset',
+        # 'nordland_dataset',
+        # 'pittsburg30k_dataset',
         # 'pittsburg250k_dataset',
         # 'essex3in1_dataset',
     ], type=list)

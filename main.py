@@ -51,18 +51,18 @@ def main(args):
         precision='16-mixed',  # we use half precision to reduce  memory usage
         # todo: used for debug
         # profiler=profiler,
-        fast_dev_run=True,  # uncomment or dev mode (only runs a one iteration train and validation, no checkpointing).
+        # fast_dev_run=True,  # uncomment or dev mode (only runs a one iteration train and validation, no checkpointing).
         # limit_train_batches=1,
         # limit_val_batches=50
     )
 
     # train and eval model using train_dataloader and eval_dataloader
-    trainer.fit(model, data_module)
+    # trainer.fit(model, data_module)
 
     # validate model using defined test_dataloader, you have to set the ckpt_path
-    # trainer.validate(model=model,
-    #                  datamodule=data_module,
-    #                  ckpt_path='/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_26/checkpoints/dinov2_finetune_epoch(08)_step(17586)_R1[0.8649]_R5[0.9365]_R10[0.9500].ckpt')
+    trainer.validate(model=model,
+                     datamodule=data_module,
+                     ckpt_path='/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_31/checkpoints/dinov2_finetune_epoch(14)_step(29310)_R1[0.8986]_R5[0.9500]_R10[0.9581].ckpt')
 
 if __name__ == '__main__':
     args = parser.parse_args()

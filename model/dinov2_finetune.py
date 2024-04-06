@@ -7,6 +7,7 @@ from torch import nn
 
 from model.moudles.aggregate_block import Aggregator
 from model.moudles.token_reducer import TokenReducer
+from model.moudles import aggregation
 
 warnings.filterwarnings('ignore')
 
@@ -16,6 +17,7 @@ DINOV2_ARCHS = {
     'dinov2_vitl14': 1024,
     'dinov2_vitg14': 1536,
 }
+
 
 class Dinov2Backbone(nn.Module):
     """
@@ -44,7 +46,7 @@ class Dinov2Backbone(nn.Module):
             mix_mlp_ratio=4,
             mix_out_rows=3,
 
-            # args for token learner
+            # args for token reducer
             rerank=False,
             num_learned_tokens=8,
             channels_reduced=128,
@@ -66,7 +68,7 @@ class Dinov2Backbone(nn.Module):
         self.mix_mix_depth = mix_mix_depth
         self.mix_mlp_ratio = mix_mlp_ratio
         self.mix_out_rows = mix_out_rows
-        # args for token learner
+        # args for token reducer
         self.rerank = rerank
         self.num_learned_tokens = num_learned_tokens
         self.channels_reduced = channels_reduced
@@ -81,7 +83,7 @@ class Dinov2Backbone(nn.Module):
         )
 
         if self.rerank:
-            # init token learner
+            # init token reducer
             self.token_reducer = TokenReducer(
                 in_channels=self.num_channels,
                 num_tokens=self.num_learned_tokens,
@@ -179,7 +181,7 @@ class Dinov2Finetune(nn.Module):
         self.mix_mlp_ratio = mix_mlp_ratio
         self.mix_out_rows = mix_out_rows
 
-        # args for token learner
+        # args for token reducer
         self.rerank = rerank
         self.num_learned_tokens = num_learned_tokens
         self.channels_reduced = channels_reduced
@@ -198,7 +200,7 @@ class Dinov2Finetune(nn.Module):
             pretrained_model_name=self.pretrained_model_name,
             num_trainable_blocks=self.num_trainable_blocks,
             norm_layer=self.norm_layer,
-            # token learner
+            # token reducer
             rerank=self.rerank,
             num_learned_tokens=self.num_learned_tokens,
             channels_reduced=self.channels_reduced,
@@ -317,14 +319,11 @@ if __name__ == '__main__':
         # use_time = (time_end - time_start) / num
         # print('use_time:', use_time)
 
-
         input = torch.randn((1, 3, 322, 322)).cuda()
-        g,l = model.dino_forward(input)
+        g, l = model.dino_forward(input)
         print(g.size())
 
         input1 = torch.randn((1, 8, 1024)).cuda()
         input2 = torch.randn((1, 8, 1024)).cuda()
-        o=model(input1, input2)
+        o = model(input1, input2)
         print(o.size())
-
-

@@ -30,11 +30,31 @@ valid_transform = T.Compose([
 
 args = parser.parse_args()
 data_module = DInterface(**vars(args))
+
 if args.model_name == 'dinov2_finetune':
-    model = AggMInterface.load_from_checkpoint(
-        '/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_16/checkpoints/dinov2_finetune_epoch(38)_step(76206)_R1[0.9135]_R5[0.9581]_R10[0.9649].ckpt').model.backbone
+    from collections import OrderedDict
+    new_state_dict = OrderedDict()
+    model = AggMInterface(**vars(args))
+    state_dict = torch.load(
+        '/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_17/checkpoints/dinov2_finetune_epoch(15)_step(31264)_R1[0.9095]_R5[0.9554]_R10[0.9622].ckpt')
+
+    for k, v in state_dict['state_dict'].items():
+        if 'learner' in k:
+            name=k.replace('learner', 'reducer')
+            new_state_dict[name] = v
+        else:
+            new_state_dict[k] = v
+    # load params
+    model.load_state_dict(new_state_dict)  # 从新加载这个模型。
+    model=model.model.backbone
+    model.cuda()
     model.eval()
-    print(model)
+
+
+    # model = AggMInterface.load_from_checkpoint(
+    #     '/media/cartolab/DataDisk/wuqilong_file/VPR_project_v1/logs/dinov2_finetune/lightning_logs/version_16/checkpoints/dinov2_finetune_epoch(38)_step(76206)_R1[0.9135]_R5[0.9581]_R10[0.9649].ckpt').model.backbone
+    # model.eval()
+    # print(model)
 
     image_path = '/media/cartolab/DataDisk/wuqilong_file/VPR_datasets/MSLS_Dataset/MSLS/test/athens/query/images/9tfP0v69U0Gmyp_vZ0AzSg.jpg'
     # load image
@@ -48,10 +68,13 @@ if args.model_name == 'dinov2_finetune':
     #         a.rectangle(((14 * i, 14 * j), (14 * (i + 1), 14 * (j + 1))), fill=None, outline='green', width=1)
 
     # 可视化结果
-    fig, ax = plt.subplots(1, 9, figsize=(36, 4))
-    ax[0].set_xticks([])
-    ax[0].set_yticks([])
-    ax[0].imshow(image_query)
+    fig, ax = plt.subplots(2, 9, figsize=(18, 4))
+    ax[0][0].set_xticks([])
+    ax[0][0].set_yticks([])
+    ax[0][0].imshow(image_query)
+    ax[1][0].set_xticks([])
+    ax[1][0].set_yticks([])
+    ax[1][0].imshow(image_query)
     image_query_ = valid_transform(image_query)
     image_query_ = image_query_.unsqueeze(0)
     # define hook function
@@ -60,7 +83,7 @@ if args.model_name == 'dinov2_finetune':
     def hook(module, fea_in, fea_out):
         features_in_hook.append(fea_in)
         features_out_hook.append(fea_out)
-    layer_name = f'token_learner.attention_maps'
+    layer_name = f'token_reducer.attention_maps'
     for (name, module) in model.named_modules():
         print(name)
         if name == layer_name:
@@ -73,9 +96,14 @@ if args.model_name == 'dinov2_finetune':
     maps = maps.cpu().detach().numpy()
 
     for i in range(len(maps)):
-        ax[i + 1].set_xticks([])
-        ax[i + 1].set_yticks([])
-        ax[i + 1].imshow(maps[i])
+        if i<8:
+            ax[0][i + 1].set_xticks([])
+            ax[0][i + 1].set_yticks([])
+            ax[0][i + 1].imshow(maps[i])
+        else:
+            ax[1][i-8 + 1].set_xticks([])
+            ax[1][i-8 + 1].set_yticks([])
+            ax[1][i-8 + 1].imshow(maps[i])
 
     # first_row_maps = maps[0]
     # ax[1].set_xticks([])
@@ -83,7 +111,8 @@ if args.model_name == 'dinov2_finetune':
     # ax[1].imshow(maps[0])
 
     fig.tight_layout()
-    output_filepath = os.path.join('../attention_visual_result/show_learner_attentions_v1/', os.path.basename(image_path),
+    fig.tight_layout()
+    output_filepath = os.path.join('../attention_visual_result/show_learner_attentions_v4/', os.path.basename(image_path),
                                    )
     plt.savefig(output_filepath, dpi=600, bbox_inches='tight')
     plt.show()
